@@ -1,3 +1,0 @@
-User-agent: *
-Disallow:
-Sitemap: https://circuitbreakyt-web.github.io/circuit-break-blog/sitemap.xml
