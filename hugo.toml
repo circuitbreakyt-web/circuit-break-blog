@@ -1,0 +1,42 @@
+baseURL = "https://samfoy.github.io/circuit-break-blog"
+languageCode = "en-us"
+title = "Circuit Break | AI & Tech Explained"
+theme = "PaperMod"
+
+enableRobotsTXT = true
+buildDrafts = false
+buildFuture = false
+buildExpired = false
+
+[sitemap]
+  changefreq = "weekly"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+[params]
+  env = "production"
+  description = "Breaking down AI and tech news into simple, digestible insights"
+  author = "Circuit Break"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowRssButtonInSectionTermList = true
+  UseHugoToc = true
+
+  [params.homeInfoParams]
+    Title = "Circuit Break"
+    Content = "Your source for AI and tech news, explained simply. New posts regularly."
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/samfoy"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
