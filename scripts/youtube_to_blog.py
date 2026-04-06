@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 Convert YouTube video script to expanded blog post.
-Usage: python youtube_to_blog.py "Video Title" path/to/script.txt
+Usage: python youtube_to_blog.py --title "Video Title" --script-file path/to/script.txt
 """
 
 import boto3
 import json
 import os
 import sys
+import argparse
 from datetime import datetime
 from pathlib import Path
 import re
@@ -141,19 +142,19 @@ slug: "{slug}"
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python youtube_to_blog.py \"Video Title\" path/to/script.txt")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Convert YouTube script to blog post")
+    parser.add_argument("--title", required=True, help="Video title")
+    parser.add_argument("--script-file", required=True, help="Path to script file")
+    args = parser.parse_args()
 
-    title = sys.argv[1]
-    script_path = Path(sys.argv[2])
+    script_path = Path(args.script_file)
 
     if not script_path.exists():
         print(f"Error: Script file not found: {script_path}")
         sys.exit(1)
 
     print(f"=== YouTube to Blog Converter ===")
-    print(f"Title: {title}")
+    print(f"Title: {args.title}")
     print(f"Script: {script_path}\n")
 
     # Read script
@@ -163,7 +164,7 @@ def main():
     print(f"Expanding {len(script_content.split())} words to 800-word blog post...")
 
     # Convert
-    post_data = expand_script_to_blog(title, script_content)
+    post_data = expand_script_to_blog(args.title, script_content)
 
     # Save
     output_path = save_post(post_data)
