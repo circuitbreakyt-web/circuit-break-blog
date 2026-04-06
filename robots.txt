@@ -1,3 +1,3 @@
 User-agent: *
 Disallow:
-Sitemap: https://samfoy.github.io/circuit-break-blog/sitemap.xml
+Sitemap: https://circuitbreakyt-web.github.io/circuit-break-blog/sitemap.xml
