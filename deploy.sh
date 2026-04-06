@@ -22,11 +22,16 @@ if ! git show-ref --verify --quiet refs/heads/gh-pages; then
     git checkout master
 fi
 
-# Copy public/ contents to gh-pages
+# Copy public/ to temp location
 echo "Preparing gh-pages content..."
+TEMP_DIR=$(mktemp -d)
+cp -R public/* "$TEMP_DIR/"
+echo "Copied build to temp: $TEMP_DIR"
+
+# Switch to gh-pages and deploy
 git checkout gh-pages
-rsync -av --delete --exclude='.git' public/ .
-rm -rf public
+rsync -av --delete --exclude='.git' "$TEMP_DIR/" .
+rm -rf "$TEMP_DIR"
 
 # Commit and push
 echo "Committing and pushing to gh-pages..."
