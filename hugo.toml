@@ -32,7 +32,7 @@ buildExpired = false
 
   [[params.socialIcons]]
     name = "github"
-    url = "https://github.com/samfoy"
+    url = "https://github.com/circuitbreakyt-web"
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
