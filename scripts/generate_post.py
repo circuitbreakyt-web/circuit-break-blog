@@ -178,7 +178,7 @@ Start directly with an engaging intro paragraph."""
     prompt_meta = f"""Based on this topic: "{topic}"
 
 Generate:
-1. A catchy, SEO-friendly title (60 chars max)
+1. A catchy, SEO-friendly title (60 chars max) — do NOT include a year like "2024" or "2025" in the title
 2. A compelling meta description (150 chars max)
 3. 3-5 relevant tags (comma-separated, lowercase)
 4. URL-friendly slug (lowercase, hyphens)

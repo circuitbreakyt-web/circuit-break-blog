@@ -62,5 +62,5 @@ gh api repos/circuitbreakyt-web/circuit-break-blog/pages -X PUT \
 
 echo ""
 echo "✓ Deployment complete!"
-echo "  Site: https://samfoy.github.io/circuit-break-blog"
+echo "  Site: https://circuitbreakyt-web.github.io/circuit-break-blog"
 echo "  (May take 1-2 minutes to update)"

@@ -1,5 +1,5 @@
 ---
-title: "Neural Network Optimization: Complete Guide & Techniques"
+title: "Neural Network Optimization: Complete Guide & Techniques 2026"
 date: 2026-04-05T23:05:16.923697
 draft: false
 description: "Master neural network optimization with proven techniques for faster training, better accuracy, and efficient model performance. Learn algorithms & best practices."
