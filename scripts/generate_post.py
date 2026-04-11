@@ -7,6 +7,8 @@ import boto3
 import json
 import os
 import sys
+import urllib.request
+import urllib.parse
 from datetime import datetime
 from pathlib import Path
 import re
@@ -14,6 +16,16 @@ import random
 
 # AWS Bedrock setup
 os.environ.setdefault("AWS_PROFILE", "openclaw-bedrock")
+
+# Load .env from parent directory if present
+_env_file = Path(__file__).parent.parent.parent / ".env"
+if _env_file.exists():
+    for _line in _env_file.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
+
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
 MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
@@ -203,8 +215,77 @@ def choose_saas_affiliate(topic: str) -> dict | None:
     return None
 
 
+def research_topic(topic: str) -> str:
+    """
+    Fetch real recent data about the topic using Perplexity API.
+    Returns a research brief with facts, stats, recent events, and real tools.
+    """
+    perplexity_key = os.environ.get("PERPLEXITY_API_KEY", "")
+    if not perplexity_key:
+        print("  [research] No PERPLEXITY_API_KEY — skipping web research")
+        return ""
+
+    print(f"  [research] Fetching real data for: {topic}")
+    try:
+        payload = json.dumps({
+            "model": "sonar",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": (
+                        f"Research brief for a tech blog post about: {topic}\n\n"
+                        "Return a concise research brief (400 words max) containing:\n"
+                        "1. 3-5 recent news items or events (last 6 months) with approximate dates\n"
+                        "2. 3-5 real statistics or data points with sources\n"
+                        "3. 3-5 real tools, products, or companies relevant to this topic with URLs\n"
+                        "4. 1-2 interesting angles or counterintuitive facts worth exploring\n\n"
+                        "Be specific. Name real companies, cite real numbers. No filler."
+                    )
+                }
+            ],
+            "max_tokens": 800,
+            "search_recency_filter": "month",
+            "return_citations": True,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            "https://api.perplexity.ai/chat/completions",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {perplexity_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read())
+            brief = data["choices"][0]["message"]["content"]
+            citations = data.get("citations", [])
+            if citations:
+                brief += "\n\nSources: " + ", ".join(citations[:5])
+            print(f"  [research] Got {len(brief)} chars of research data")
+            return brief
+    except Exception as e:
+        print(f"  [research] Failed: {e} — continuing without research")
+        return ""
+
+
 def generate_blog_post(topic: str) -> dict:
     """Generate SEO blog post with affiliate link."""
+
+    # Step 0: Research the topic with real data
+    research_brief = research_topic(topic)
+    research_section = ""
+    if research_brief:
+        research_section = f"""
+
+RESEARCH BRIEF (use this real data — cite these facts, link to these tools, reference these events):
+---
+{research_brief}
+---
+IMPORTANT: Ground your writing in this research. Use the specific numbers, companies, tools, and events listed above. 
+Do NOT invent statistics or make vague claims. If you cite a tool, link to its real URL.
+"""
 
     # Choose affiliate product
     product = choose_affiliate_product(topic)
@@ -218,14 +299,15 @@ def generate_blog_post(topic: str) -> dict:
 
     # Prompt for blog post
     prompt = f"""You are a senior technology journalist writing for a publication like TechTalks, MIT Technology Review, or Wired. Your readers are tech-curious professionals — smart, busy, and skeptical of hype.
-
+{research_section}
 Write a 900-1200 word blog post about: {topic}
 
 STYLE RULES (study and follow these carefully):
 - Open with a concrete, surprising, or counterintuitive hook — a real-world event, a striking statistic, or a tension that grabs attention immediately. NOT a generic "AI is transforming..." opener.
 - Write like a journalist, not a marketer. State facts, name companies, cite real examples. Be specific: "OpenAI's GPT-4" not "a leading AI model".
 - Have a clear argument or thesis — not just "here's what X is", but "here's what people misunderstand about X" or "here's why X matters more than you think"
-- Use concrete numbers and comparisons when making a point (e.g. "a 70% reduction in development costs", "$285 billion wiped off market cap")
+- Use concrete numbers and comparisons when making a point — pull from the research brief above
+- When mentioning real tools people can use, hyperlink them inline using markdown: [Perplexity](https://perplexity.ai), [Hugging Face](https://huggingface.co), etc.
 - 2-3 well-chosen H2 sections that build on each other — each section should advance the argument, not just list facts
 - Short, punchy paragraphs (2-4 sentences max). Vary sentence length.
 - One tight bullet list is fine; avoid multiple listicles — this isn't a "top 10" post
@@ -237,6 +319,7 @@ DO NOT:
 - Use the words "delve", "leverage", "paradigm", "transformative", "game-changer", or "revolutionize"
 - Include a main H1 title (Hugo adds it automatically)
 - Write a listicle disguised as an article
+- Invent statistics — only use numbers from the research brief above
 
 TOPIC: {topic}"""
 

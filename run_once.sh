@@ -3,6 +3,11 @@
 
 set -e
 
+# Load shared env vars (API keys etc)
+if [ -f "$(dirname "$0")/../.env" ]; then
+  export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PYTHON="/Users/sam.painter/Projects/youtube-channels/scary-stories/.venv/bin/python"
 
