@@ -47,7 +47,7 @@ echo "Copied build to temp: $TEMP_DIR"
 
 # Switch to gh-pages and deploy
 git checkout gh-pages
-rsync -av --delete --exclude='.git' "$TEMP_DIR/" .
+rsync -av --delete --exclude='.git' --exclude='themes/' "$TEMP_DIR/" .
 touch .nojekyll  # Prevent GitHub Pages from running Jekyll on Hugo output
 rm -rf "$TEMP_DIR"
 
