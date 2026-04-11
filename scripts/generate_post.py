@@ -217,22 +217,30 @@ def generate_blog_post(topic: str) -> dict:
         saas_block = f"\n\n---\n\n🔧 **Recommended tool:** [{saas['name']}]({saas['url']}) — {saas['description']}. [{saas['cta']} →]({saas['url']})\n"
 
     # Prompt for blog post
-    prompt = f"""Write a 600-900 word SEO-optimized blog post about: {topic}
+    prompt = f"""You are a senior technology journalist writing for a publication like TechTalks, MIT Technology Review, or Wired. Your readers are tech-curious professionals — smart, busy, and skeptical of hype.
 
-Requirements:
-- Write for a general tech-curious audience (not just experts)
-- Use clear H2 headers to structure the content (use ## markdown)
-- Include 2-3 bullet point lists for readability
-- Natural, engaging tone - not overly formal
-- Include 1-2 specific examples or case studies
-- Naturally mention the book "{product['name']}" as a recommended resource for readers who want to dive deeper
-- End with a brief "What's Next" or "Key Takeaway" section
-- Use SEO-friendly language without keyword stuffing
+Write a 900-1200 word blog post about: {topic}
 
-DO NOT include a main H1 title at the start (Hugo will add that).
-Start directly with an engaging intro paragraph."""
+STYLE RULES (study and follow these carefully):
+- Open with a concrete, surprising, or counterintuitive hook — a real-world event, a striking statistic, or a tension that grabs attention immediately. NOT a generic "AI is transforming..." opener.
+- Write like a journalist, not a marketer. State facts, name companies, cite real examples. Be specific: "OpenAI's GPT-4" not "a leading AI model".
+- Have a clear argument or thesis — not just "here's what X is", but "here's what people misunderstand about X" or "here's why X matters more than you think"
+- Use concrete numbers and comparisons when making a point (e.g. "a 70% reduction in development costs", "$285 billion wiped off market cap")
+- 2-3 well-chosen H2 sections that build on each other — each section should advance the argument, not just list facts
+- Short, punchy paragraphs (2-4 sentences max). Vary sentence length.
+- One tight bullet list is fine; avoid multiple listicles — this isn't a "top 10" post
+- End with a forward-looking "what this means for you" paragraph — practical, grounded, not hype
+- Mention "{product['name']}" naturally as a recommended deep-dive resource (1 sentence, feels earned not forced)
 
-    content = invoke_claude(prompt)
+DO NOT:
+- Start with "In today's rapidly evolving..." or any variant
+- Use the words "delve", "leverage", "paradigm", "transformative", "game-changer", or "revolutionize"
+- Include a main H1 title (Hugo adds it automatically)
+- Write a listicle disguised as an article
+
+TOPIC: {topic}"""
+
+    content = invoke_claude(prompt, max_tokens=3000)
 
     # Insert affiliate link
     book_mention = product['name'].split(':')[0]  # Get first part before colon
@@ -255,10 +263,15 @@ Start directly with an engaging intro paragraph."""
     prompt_meta = f"""Based on this topic: "{topic}"
 
 Generate:
-1. A catchy, SEO-friendly title (60 chars max) — do NOT include a year like "2024" or "2025" in the title
-2. A compelling meta description (150 chars max)
-3. 3-5 relevant tags (comma-separated, lowercase)
+1. A headline-style title that's specific and intriguing (60 chars max) — think Wired/MIT Tech Review style, NOT clickbait. Do NOT include a year like "2024" or "2025".
+2. A compelling meta description that teases the argument (150 chars max)
+3. 3-5 relevant tags (comma-separated, lowercase, specific not generic)
 4. URL-friendly slug (lowercase, hyphens)
+
+Good title examples:
+- "Why AI Won't Kill SaaS"
+- "The Hidden Cost of Edge AI"
+- "Open Source AI's Quiet Takeover"
 
 Format as JSON:
 {{"title": "...", "description": "...", "tags": ["tag1", "tag2"], "slug": "..."}}"""
