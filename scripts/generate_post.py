@@ -27,7 +27,7 @@ if _env_file.exists():
             os.environ.setdefault(_k.strip(), _v.strip())
 
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
-MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+MODEL_ID = "us.anthropic.claude-opus-4-6-v1"  # Opus for blog post quality
 
 # Amazon Associates tag
 AFFILIATE_TAG = "circuitbreak-20"
