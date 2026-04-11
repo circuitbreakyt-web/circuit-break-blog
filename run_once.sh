@@ -19,4 +19,21 @@ echo "Deploying to GitHub Pages..."
 bash "$SCRIPT_DIR/deploy.sh"
 echo ""
 
-echo "✓ Complete! Check https://samfoy.github.io/circuit-break-blog"
+# Promote on Reddit (if credentials set)
+if [ -n "$REDDIT_CLIENT_ID" ]; then
+    echo "Posting to Reddit..."
+    $PYTHON "$SCRIPT_DIR/scripts/post_reddit.py" || echo "Reddit post failed (non-fatal)"
+else
+    echo "⚠️  REDDIT_CLIENT_ID not set — skipping Reddit promotion"
+fi
+
+# Promote on Pinterest (if credentials set)
+if [ -n "$PINTEREST_ACCESS_TOKEN" ]; then
+    echo "Pinning to Pinterest..."
+    $PYTHON "$SCRIPT_DIR/scripts/post_pinterest.py" || echo "Pinterest post failed (non-fatal)"
+else
+    echo "⚠️  PINTEREST_ACCESS_TOKEN not set — skipping Pinterest"
+fi
+
+echo ""
+echo "✓ Complete! Check https://circuitbreakyt-web.github.io/circuit-break-blog"

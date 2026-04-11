@@ -80,7 +80,64 @@ AFFILIATE_PRODUCTS = [
         "name": "The Master Algorithm: How the Quest for the Ultimate Learning Machine Will Remake Our World",
         "asin": "0465094279",
         "context": "machine learning, AI history"
+    },
+    {
+        "name": "AI Superpowers: China, Silicon Valley, and the New World Order",
+        "asin": "132854639X",
+        "context": "AI geopolitics, China, industry"
+    },
+    {
+        "name": "The Coming Wave: Technology, Power, and the Twenty-First Century's Greatest Dilemma",
+        "asin": "0593593952",
+        "context": "AI futures, risk, regulation, society"
+    },
+    {
+        "name": "Co-Intelligence: Living and Working with AI",
+        "asin": "059371671X",
+        "context": "working with AI, productivity, practical use"
+    },
+    {
+        "name": "Chip War: The Fight for the World's Most Critical Technology",
+        "asin": "1982172002",
+        "context": "semiconductors, chips, hardware, geopolitics"
+    },
+    {
+        "name": "The Worlds I See: Curiosity, Exploration, and Discovery at the Dawn of AI",
+        "asin": "1250897939",
+        "context": "AI history, deep learning, Fei-Fei Li"
     }
+]
+
+# SaaS/Tool affiliate links (higher commission rates)
+SAAS_AFFILIATES = [
+    {
+        "name": "Jasper AI",
+        "url": "https://www.jasper.ai/?fpr=circuitbreak",
+        "description": "AI writing assistant used by 100,000+ marketers",
+        "context": "writing, content, marketing, productivity",
+        "cta": "Try Jasper AI free",
+    },
+    {
+        "name": "ElevenLabs",
+        "url": "https://elevenlabs.io/?from=circuitbreak",
+        "description": "AI voice generation — realistic text-to-speech",
+        "context": "voice, audio, text-to-speech, content creation",
+        "cta": "Generate AI voices with ElevenLabs",
+    },
+    {
+        "name": "Perplexity AI",
+        "url": "https://perplexity.ai",
+        "description": "AI-powered search engine",
+        "context": "search, research, AI tools, productivity",
+        "cta": "Try Perplexity AI",
+    },
+    {
+        "name": "Midjourney",
+        "url": "https://www.midjourney.com",
+        "description": "AI image generation",
+        "context": "image generation, creative AI, design, art",
+        "cta": "Create AI art with Midjourney",
+    },
 ]
 
 
@@ -136,12 +193,28 @@ def choose_affiliate_product(topic: str) -> dict:
     return random.choice(AFFILIATE_PRODUCTS)
 
 
+def choose_saas_affiliate(topic: str) -> dict | None:
+    """Choose a relevant SaaS affiliate based on topic."""
+    topic_lower = topic.lower()
+    for product in SAAS_AFFILIATES:
+        context_words = product["context"].lower().split(", ")
+        if any(word in topic_lower for word in context_words):
+            return product
+    return None
+
+
 def generate_blog_post(topic: str) -> dict:
     """Generate SEO blog post with affiliate link."""
 
     # Choose affiliate product
     product = choose_affiliate_product(topic)
     affiliate_link = f"https://www.amazon.com/dp/{product['asin']}?tag={AFFILIATE_TAG}"
+
+    # Choose SaaS affiliate if relevant
+    saas = choose_saas_affiliate(topic)
+    saas_block = ""
+    if saas:
+        saas_block = f"\n\n---\n\n🔧 **Recommended tool:** [{saas['name']}]({saas['url']}) — {saas['description']}. [{saas['cta']} →]({saas['url']})\n"
 
     # Prompt for blog post
     prompt = f"""Write a 600-900 word SEO-optimized blog post about: {topic}
@@ -173,6 +246,10 @@ Start directly with an engaging intro paragraph."""
     else:
         # Append recommendation at end
         content += f"\n\n*For a deeper dive into this topic, check out [{product['name']}]({affiliate_link}).*\n"
+
+    # Append SaaS affiliate block if relevant
+    if saas_block:
+        content += saas_block
 
     # Generate metadata
     prompt_meta = f"""Based on this topic: "{topic}"
