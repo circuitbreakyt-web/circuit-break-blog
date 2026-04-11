@@ -16,6 +16,16 @@ if [ ! -f "themes/PaperMod/theme.toml" ] && [ ! -f "themes/PaperMod/layouts/inde
     git clone https://github.com/adityatelange/hugo-PaperMod themes/PaperMod --depth=1 --quiet
 fi
 
+# Commit any new posts to master before building
+echo "Committing new posts to master..."
+git add content/posts/
+if ! git diff --staged --quiet; then
+    git commit -m "Add blog post - $(date +%Y-%m-%d)"
+    git push origin master
+else
+    echo "No new posts to commit"
+fi
+
 # Build Hugo site
 echo "Building Hugo site..."
 hugo --minify
